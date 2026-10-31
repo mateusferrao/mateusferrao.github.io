@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
-import { type Lang, ui, tr, contato } from '../data/i18n';
+import { type Lang, ui, tr } from '../data/i18n';
+import Links from '../components/Links.astro';
 
 interface Props {
   lang: Lang;
@@ -68,10 +69,7 @@ const og = new URL('/og.png', site).href;
         <p class="mono">© 2026 Mateus Ferrão da Costa</p>
         <p>{tr(ui.rodape, lang)}</p>
         <p class="links">
-          <a href={`mailto:${contato.email}`}>E-mail</a>
-          <a href="/cv/Mateus-Ferrao-AI-Builder.pdf">CV</a>
-          <a href={contato.linkedin} rel="me">LinkedIn</a>
-          <a href={contato.github} rel="me">GitHub</a>
+          <Links lang={lang} email="curto" tam="sm" />
         </p>
       </div>
     </footer>
@@ -197,10 +195,9 @@ const og = new URL('/og.png', site).href;
   }
   .links {
     display: flex;
-    gap: 18px;
-    margin-top: 8px !important;
-  }
-  .links a {
-    color: var(--muted);
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px !important;
   }
 </style>

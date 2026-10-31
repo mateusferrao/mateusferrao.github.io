@@ -2,7 +2,8 @@
 import Base from '../layouts/Base.astro';
 import Console from './Console.astro';
 import Demo from './Demo.astro';
-import { type Lang, ui, tr, rotas, contato } from '../data/i18n';
+import Links from './Links.astro';
+import { type Lang, ui, tr, rotas } from '../data/i18n';
 import { destaques, outros, numerosHome, maisEmProducao, licencasNota, selos, casos } from '../data/casos';
 
 interface Props {
@@ -67,9 +68,7 @@ const description = pt
         <p class="sub">{tr(ui.heroSub, lang)}</p>
         <div class="ctas">
           <a class="btn btn-primary" href="#casos">{tr(ui.verCasos, lang)} ↓</a>
-          <a class="btn" href="/cv/Mateus-Ferrao-AI-Builder.pdf" target="_blank" rel="noopener">{pt ? 'CV (PDF)' : 'Résumé (PDF, PT)'}</a>
-          <a class="btn" href={contato.linkedin}>LinkedIn</a>
-          <a class="btn" href={contato.github}>GitHub</a>
+          <Links lang={lang} />
         </div>
       </div>
       <Console lang={lang} />
@@ -254,10 +253,7 @@ const description = pt
         <h2>{tr(ui.contatoTitulo, lang)}</h2>
         <p>{tr(ui.contatoSub, lang)}</p>
         <div class="ctas">
-          <a class="btn btn-primary" href={`mailto:${contato.email}`}>{contato.email}</a>
-          <a class="btn" href="/cv/Mateus-Ferrao-AI-Builder.pdf" target="_blank" rel="noopener">{pt ? 'CV (PDF)' : 'Résumé (PDF, PT)'}</a>
-          <a class="btn" href={contato.linkedin}>LinkedIn</a>
-          <a class="btn" href={contato.github}>GitHub</a>
+          <Links lang={lang} email="endereco" />
         </div>
       </div>
     </div>
@@ -318,6 +314,24 @@ const description = pt
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    align-items: center;
+  }
+  /* Celular: ação principal ocupa a linha; CV + ícones ficam juntos na linha de baixo */
+  @media (max-width: 560px) {
+    .ctas :global(.btn-primary) {
+      flex: 1 1 100%;
+      justify-content: center;
+      font-size: 14.5px;
+    }
+  }
+  @media (max-width: 560px) {
+    .cta {
+      padding: 28px 20px;
+    }
+    .cta .ctas :global(.btn-primary) {
+      font-size: 13px;
+      padding: 12px 14px;
+    }
   }
 
   .nums {
@@ -660,7 +674,5 @@ const description = pt
     max-width: 640px;
     margin: 0 0 26px;
   }
-  .cta .btn-primary {
-    word-break: break-all;
-  }
+
 </style>

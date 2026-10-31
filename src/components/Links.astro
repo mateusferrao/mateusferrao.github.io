@@ -1,0 +1,72 @@
+---
+// Padrão único de links de contato: CV com ícone + texto, LinkedIn e GitHub só ícone.
+// O e-mail aparece com o endereço (contato) ou como ícone + "E-mail" (rodapé).
+import Icon from './Icon.astro';
+import { type Lang, contato } from '../data/i18n';
+
+interface Props {
+  lang: Lang;
+  email?: 'endereco' | 'curto' | 'nao';
+  tam?: 'md' | 'sm';
+}
+const { lang, email = 'nao', tam = 'md' } = Astro.props;
+const pt = lang === 'pt';
+const cv = '/cv/Mateus-Ferrao-AI-Builder.pdf';
+const i = tam === 'sm' ? 16 : 18;
+---
+
+{
+  email === 'endereco' && (
+    <a class="btn btn-primary" href={`mailto:${contato.email}`}>
+      <Icon nome="email" tam={i} />
+      <span class="quebra">{contato.email}</span>
+    </a>
+  )
+}
+{
+  email === 'curto' && (
+    <a class={`btn ${tam}`} href={`mailto:${contato.email}`}>
+      <Icon nome="email" tam={i} />
+      E-mail
+    </a>
+  )
+}
+<a class={`btn ${tam}`} href={cv} target="_blank" rel="noopener" title={pt ? 'Abrir o CV em PDF' : 'Open résumé (PDF, in Portuguese)'}>
+  <Icon nome="cv" tam={i} />
+  CV
+</a>
+<a class={`btn-icon ${tam}`} href={contato.linkedin} rel="me" aria-label="LinkedIn" title="LinkedIn">
+  <Icon nome="linkedin" tam={i} />
+</a>
+<a class={`btn-icon ${tam}`} href={contato.github} rel="me" aria-label="GitHub" title="GitHub">
+  <Icon nome="github" tam={i} />
+</a>
+
+<style>
+  .btn.sm {
+    padding: 8px 13px;
+    font-size: 13.5px;
+  }
+  .btn-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--line-2);
+    color: var(--text);
+    transition: border-color 0.2s, color 0.2s, transform 0.2s;
+  }
+  .btn-icon.sm {
+    width: 36px;
+    height: 36px;
+  }
+  .btn-icon:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .quebra {
+    overflow-wrap: anywhere;
+  }
+</style>
