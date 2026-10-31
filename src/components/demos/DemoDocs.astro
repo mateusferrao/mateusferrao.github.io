@@ -1,0 +1,182 @@
+---
+import { type Lang } from '../../data/i18n';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+// Lote fictício. Os achados são ilustrativos do tipo de saída, não do conteúdo real.
+const docs = pt
+  ? [
+      { n: 'NF 0012.pdf', tipo: 'Nota fiscal', ok: false, nota: 'Valor a conferir com o lançamento' },
+      { n: 'NF 0013.pdf', tipo: 'Nota fiscal', ok: true, nota: 'Sem pendências' },
+      { n: 'Guia 0087.jpg', tipo: 'Guia de tributo', ok: false, nota: 'Vencimento em 2 dias' },
+      { n: 'NF 0021.pdf', tipo: 'Nota fiscal', ok: true, nota: 'Sem pendências' },
+      { n: 'Recibo 0140.jpg', tipo: 'Imagem digitalizada', ok: false, nota: 'Imagem pouco legível: revisar' },
+      { n: 'NF 0034.pdf', tipo: 'Nota fiscal', ok: true, nota: 'Sem pendências' },
+    ]
+  : [
+      { n: 'Invoice 0012.pdf', tipo: 'Invoice', ok: false, nota: 'Amount to check against booking' },
+      { n: 'Invoice 0013.pdf', tipo: 'Invoice', ok: true, nota: 'No issues' },
+      { n: 'Slip 0087.jpg', tipo: 'Tax slip', ok: false, nota: 'Due in 2 days' },
+      { n: 'Invoice 0021.pdf', tipo: 'Invoice', ok: true, nota: 'No issues' },
+      { n: 'Receipt 0140.jpg', tipo: 'Scanned image', ok: false, nota: 'Low legibility: review' },
+      { n: 'Invoice 0034.pdf', tipo: 'Invoice', ok: true, nota: 'No issues' },
+    ];
+---
+
+<div class="demo-docs" data-docs>
+  <div class="head">
+    <button type="button" class="btn btn-primary" data-go>{pt ? '▶ Analisar lote fictício' : '▶ Review fictitious batch'}</button>
+    <span class="demo-tag">{pt ? 'Documentos fictícios' : 'Fictitious documents'}</span>
+  </div>
+  <ul class="docs">
+    {
+      docs.map((d) => (
+        <li data-ok={String(d.ok)}>
+          <span class="ico mono" aria-hidden="true">{d.n.endsWith('.jpg') ? 'IMG' : 'PDF'}</span>
+          <span class="txt">
+            <b>{d.n}</b>
+            <small>{d.tipo}</small>
+            <span class="nota">{d.nota}</span>
+          </span>
+          <span class="st mono" />
+        </li>
+      ))
+    }
+  </ul>
+  <p class="sum mono" data-sum aria-live="polite"></p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-docs]').forEach((root) => {
+    const reduz = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, reduz ? 0 : ms));
+    const pt = document.documentElement.lang.startsWith('pt');
+    let run = 0;
+    const io = new IntersectionObserver((es) => {
+      if (es.some((e) => e.isIntersecting)) {
+        io.disconnect();
+        setTimeout(() => root.querySelector<HTMLButtonElement>('[data-go]')?.click(), 400);
+      }
+    }, { threshold: 0.5 });
+    io.observe(root);
+    root.querySelector('[data-go]')!.addEventListener('click', async () => {
+      const my = ++run;
+      const items = [...root.querySelectorAll<HTMLElement>('.docs li')];
+      const sum = root.querySelector<HTMLElement>('[data-sum]')!;
+      sum.textContent = '';
+      items.forEach((li) => li.classList.remove('lendo', 'feito'));
+      for (const li of items) {
+        if (my !== run) return;
+        li.classList.add('lendo');
+        li.querySelector('.st')!.textContent = pt ? 'lendo…' : 'reading…';
+        await wait(520);
+        li.classList.remove('lendo');
+        li.classList.add('feito');
+        li.querySelector('.st')!.textContent = li.dataset.ok === 'true' ? '✓' : '⚠';
+      }
+      const n = items.filter((li) => li.dataset.ok !== 'true').length;
+      sum.textContent = pt
+        ? `${items.length} documentos lidos · ${n} pontos para a diretoria revisar`
+        : `${items.length} documents read · ${n} points for leadership to review`;
+    });
+  });
+</script>
+
+<style>
+  .demo-docs {
+    display: grid;
+    gap: 14px;
+  }
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .head .btn {
+    font-size: 13.5px;
+    padding: 9px 14px;
+  }
+  .docs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 10px;
+  }
+  .docs li {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: start;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg-2);
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .ico {
+    font-size: 10px;
+    padding: 6px 5px;
+    border-radius: 6px;
+    background: var(--panel-2);
+    color: var(--muted);
+  }
+  .txt {
+    display: grid;
+    min-width: 0;
+    font-size: 13.5px;
+  }
+  .txt b {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .txt small {
+    color: var(--faint);
+    font-size: 12px;
+  }
+  .nota {
+    font-size: 12.5px;
+    margin-top: 6px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .st {
+    font-size: 12px;
+    color: var(--faint);
+  }
+  .docs li:global(.lendo) {
+    border-color: var(--info);
+    background: var(--info-soft);
+  }
+  .docs li:global(.feito) .nota {
+    opacity: 1;
+  }
+  .docs li:global(.feito)[data-ok='true'] {
+    border-color: rgba(124, 245, 176, 0.35);
+  }
+  .docs li:global(.feito)[data-ok='true'] .st,
+  .docs li:global(.feito)[data-ok='true'] .nota {
+    color: var(--accent);
+  }
+  .docs li:global(.feito)[data-ok='false'] {
+    border-color: rgba(255, 181, 71, 0.45);
+    background: var(--warn-soft);
+  }
+  .docs li:global(.feito)[data-ok='false'] .st,
+  .docs li:global(.feito)[data-ok='false'] .nota {
+    color: var(--warn);
+  }
+  .sum {
+    margin: 0;
+    font-size: 13px;
+    color: var(--accent);
+    min-height: 1.4em;
+  }
+</style>

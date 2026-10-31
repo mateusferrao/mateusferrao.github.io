@@ -1,0 +1,223 @@
+---
+import { type Lang } from '../../data/i18n';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+// Dados 100% fictícios, desenhados para mostrar a inversão do ranking.
+const criativos = [
+  { id: 'A', nome: pt ? 'Vídeo depoimento' : 'Testimonial video', gasto: 4200, agend: 120, pac: 6 },
+  { id: 'B', nome: pt ? 'Carrossel do procedimento' : 'Procedure carousel', gasto: 3800, agend: 70, pac: 14 },
+  { id: 'C', nome: pt ? 'Reels bastidores' : 'Behind-the-scenes reel', gasto: 2900, agend: 95, pac: 3 },
+  { id: 'D', nome: pt ? 'Imagem com oferta' : 'Offer image', gasto: 2100, agend: 40, pac: 9 },
+  { id: 'E', nome: pt ? 'Médica explica' : 'Doctor explains', gasto: 3300, agend: 55, pac: 12 },
+  { id: 'F', nome: pt ? 'Story de urgência' : 'Urgency story', gasto: 2700, agend: 110, pac: 2 },
+];
+const brl = (n: number) => 'R$ ' + Math.round(n).toLocaleString('pt-BR');
+const linhas = criativos.map((c) => ({ ...c, cpa: c.gasto / c.agend, cpp: c.gasto / c.pac }));
+---
+
+<div class="demo-paciente" data-paciente>
+  <div class="head">
+    <div role="group" aria-label={pt ? 'Ranquear por' : 'Rank by'} class="toggle">
+      <button type="button" data-modo="cpa" aria-pressed="true">{pt ? 'Custo por agendamento' : 'Cost per booking'}</button>
+      <button type="button" data-modo="cpp" aria-pressed="false">{pt ? 'Custo por paciente' : 'Cost per patient'}</button>
+    </div>
+    <span class="demo-tag">{pt ? 'Dados fictícios' : 'Fictitious data'}</span>
+  </div>
+
+  <ol class="rank" data-rank>
+    {
+      linhas.map((l) => (
+        <li data-id={l.id} data-cpa={l.cpa} data-cpp={l.cpp}>
+          <span class="pos mono" data-pos />
+          <span class="nome">
+            <b class="mono">{l.id}</b> {l.nome}
+            <small class="mono">
+              {brl(l.gasto)} · {l.agend} {pt ? 'agend.' : 'bookings'} · {l.pac} {pt ? 'pacientes' : 'patients'}
+            </small>
+          </span>
+          <span class="metr">
+            <span class="v-cpa mono">{brl(l.cpa)}</span>
+            <span class="v-cpp mono">{brl(l.cpp)}</span>
+          </span>
+          <span class="barra" aria-hidden="true"><span /></span>
+        </li>
+      ))
+    }
+  </ol>
+
+  <p class="insight" data-insight-cpa>
+    {pt
+      ? 'Por agendamento, o criativo F parece o campeão: R$ 25 por agendamento.'
+      : 'By bookings, ad F looks like the winner: R$ 25 per booking.'}
+  </p>
+  <p class="insight hide" data-insight-cpp>
+    {pt
+      ? 'Por paciente, o F é o pior: R$ 1.350 por paciente. O D, que parecia mediano, é o melhor. Era aqui que estava a verba mal alocada.'
+      : 'By patients, F is the worst: R$ 1,350 per patient. D, which looked average, is the best. That is where the misallocated budget was.'}
+  </p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-paciente]').forEach((root) => {
+    const ol = root.querySelector<HTMLOListElement>('[data-rank]')!;
+    const btns = root.querySelectorAll<HTMLButtonElement>('[data-modo]');
+    const reduz = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function aplicar(modo: 'cpa' | 'cpp') {
+      const items = [...ol.children] as HTMLElement[];
+      const antes = new Map(items.map((el) => [el, el.getBoundingClientRect().top]));
+      const max = Math.max(...items.map((el) => Number(el.dataset[modo])));
+      items.sort((a, b) => Number(a.dataset[modo]) - Number(b.dataset[modo]));
+      items.forEach((el, i) => {
+        ol.appendChild(el);
+        el.querySelector<HTMLElement>('[data-pos]')!.textContent = String(i + 1).padStart(2, '0');
+        const w = (Number(el.dataset[modo]) / max) * 100;
+        el.querySelector<HTMLElement>('.barra > span')!.style.width = `${w}%`;
+        el.classList.toggle('melhor', i === 0);
+        el.classList.toggle('pior', i === items.length - 1);
+      });
+      root.dataset.modo = modo;
+      root.querySelector('[data-insight-cpa]')!.classList.toggle('hide', modo !== 'cpa');
+      root.querySelector('[data-insight-cpp]')!.classList.toggle('hide', modo !== 'cpp');
+      btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.modo === modo)));
+      if (reduz) return;
+      items.forEach((el) => {
+        const d = antes.get(el)! - el.getBoundingClientRect().top;
+        if (!d) return;
+        el.animate([{ transform: `translateY(${d}px)` }, { transform: 'none' }], {
+          duration: 650,
+          easing: 'cubic-bezier(.2,.7,.2,1)',
+        });
+      });
+    }
+    btns.forEach((b) => b.addEventListener('click', () => aplicar(b.dataset.modo as 'cpa' | 'cpp')));
+    aplicar('cpa');
+  });
+</script>
+
+<style>
+  .demo-paciente {
+    display: grid;
+    gap: 16px;
+  }
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .toggle {
+    display: inline-flex;
+    background: var(--bg);
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    padding: 3px;
+  }
+  .toggle button {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 560;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .toggle button[aria-pressed='true'] {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  .rank {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .rank li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 34px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px 16px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .rank li:global(.melhor) {
+    border-color: rgba(124, 245, 176, 0.5);
+  }
+  .rank li:global(.pior) {
+    border-color: rgba(255, 122, 122, 0.45);
+  }
+  .pos {
+    color: var(--faint);
+    font-size: 13px;
+  }
+  .nome {
+    font-size: 14.5px;
+    min-width: 0;
+  }
+  .nome b {
+    color: var(--accent);
+    margin-right: 4px;
+  }
+  .nome small {
+    display: block;
+    color: var(--faint);
+    font-size: 11.5px;
+  }
+  .metr {
+    font-weight: 650;
+    font-size: 15px;
+    text-align: right;
+  }
+  .v-cpp {
+    display: none;
+  }
+  .demo-paciente:global([data-modo='cpp']) .v-cpp {
+    display: inline;
+  }
+  .demo-paciente:global([data-modo='cpp']) .v-cpa {
+    display: none;
+  }
+  .barra {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .barra > :global(span) {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--info);
+    transition: width 0.6s ease;
+  }
+  :global(.melhor) .barra > :global(span) {
+    background: var(--accent);
+  }
+  :global(.pior) .barra > :global(span) {
+    background: var(--danger);
+  }
+  .insight {
+    margin: 0;
+    padding: 12px 14px;
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: 0 10px 10px 0;
+    font-size: 14.5px;
+  }
+  .hide {
+    display: none;
+  }
+</style>

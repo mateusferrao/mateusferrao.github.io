@@ -1,0 +1,24 @@
+---
+import type { Lang } from '../data/i18n';
+import type { Caso } from '../data/casos';
+import DemoDocs from './demos/DemoDocs.astro';
+import DemoErp from './demos/DemoErp.astro';
+import DemoPaciente from './demos/DemoPaciente.astro';
+import DemoAdocao from './demos/DemoAdocao.astro';
+import DemoRecuperacao from './demos/DemoRecuperacao.astro';
+import DemoAlerta from './demos/DemoAlerta.astro';
+import DemoBlackFriday from './demos/DemoBlackFriday.astro';
+interface Props {
+  lang: Lang;
+  tipo: Caso['demo'];
+}
+const { lang, tipo } = Astro.props;
+---
+
+{tipo === 'docs' && <DemoDocs lang={lang} />}
+{tipo === 'erp' && <DemoErp lang={lang} />}
+{tipo === 'paciente' && <DemoPaciente lang={lang} />}
+{tipo === 'adocao' && <DemoAdocao lang={lang} />}
+{tipo === 'recuperacao' && <DemoRecuperacao lang={lang} />}
+{tipo === 'alerta' && <DemoAlerta lang={lang} />}
+{tipo === 'blackfriday' && <DemoBlackFriday lang={lang} />}

@@ -1,0 +1,217 @@
+---
+import { type Lang } from '../../data/i18n';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+// Empresas e guias fictícias. "dias" = dias até o vencimento.
+const guias = [
+  { emp: 'Empresa Exemplo 01', esf: 'federal', trib: 'DARF', dias: 0, valor: 18420 },
+  { emp: 'Empresa Exemplo 07', esf: 'estadual', trib: 'ICMS', dias: 1, valor: 9310 },
+  { emp: 'Empresa Exemplo 03', esf: 'municipal', trib: 'ISS', dias: 2, valor: 2150 },
+  { emp: 'Empresa Exemplo 12', esf: 'federal', trib: 'DARF', dias: 4, valor: 6740 },
+  { emp: 'Empresa Exemplo 05', esf: 'municipal', trib: 'IPTU', dias: 6, valor: 1280 },
+  { emp: 'Empresa Exemplo 09', esf: 'estadual', trib: 'ICMS', dias: 9, valor: 12990 },
+  { emp: 'Empresa Exemplo 02', esf: 'federal', trib: 'DARF', dias: 14, valor: 4505 },
+  { emp: 'Empresa Exemplo 11', esf: 'municipal', trib: 'ISS', dias: 21, valor: 870 },
+];
+const esferas = pt
+  ? { todas: 'Todas', federal: 'Federal', estadual: 'Estadual', municipal: 'Municipal' }
+  : { todas: 'All', federal: 'Federal', estadual: 'State', municipal: 'Municipal' };
+const quando = (d: number) =>
+  d === 0 ? (pt ? 'vence hoje' : 'due today') : pt ? `em ${d} dia${d > 1 ? 's' : ''}` : `in ${d} day${d > 1 ? 's' : ''}`;
+const nivel = (d: number) => (d <= 1 ? 'alto' : d <= 6 ? 'medio' : 'ok');
+const brl = (n: number) => 'R$ ' + n.toLocaleString('pt-BR');
+const urgentes = guias.filter((g) => g.dias <= 2).length;
+---
+
+<div class="demo-alerta" data-alerta>
+  <div class="head">
+    <div class="filtros" role="group" aria-label={pt ? 'Filtrar por esfera' : 'Filter by level'}>
+      {
+        Object.entries(esferas).map(([k, v], i) => (
+          <button type="button" data-f={k} aria-pressed={i === 0 ? 'true' : 'false'}>
+            {v}
+          </button>
+        ))
+      }
+    </div>
+    <span class="demo-tag">{pt ? 'Empresas e valores fictícios' : 'Fictitious companies and amounts'}</span>
+  </div>
+
+  <div class="alerta" role="status">
+    <span class="sino" aria-hidden="true">●</span>
+    <div>
+      <strong>{pt ? `${urgentes} guias vencem nos próximos 2 dias` : `${urgentes} slips are due in the next 2 days`}</strong>
+      <span>{pt ? 'Aviso enviado aos times fiscal e financeiro.' : 'Alert sent to the tax and finance teams.'}</span>
+    </div>
+  </div>
+
+  <div class="tabela" role="table" aria-label={pt ? 'Guias por vencimento' : 'Slips by due date'}>
+    <div class="tr th" role="row">
+      <span role="columnheader">{pt ? 'Empresa' : 'Company'}</span>
+      <span role="columnheader">{pt ? 'Guia' : 'Slip'}</span>
+      <span role="columnheader" class="r">{pt ? 'Valor' : 'Amount'}</span>
+      <span role="columnheader" class="r">{pt ? 'Vencimento' : 'Due'}</span>
+    </div>
+    {
+      guias.map((g) => (
+        <div class={`tr n-${nivel(g.dias)}`} role="row" data-esf={g.esf}>
+          <span role="cell" class="emp">
+            {g.emp}
+          </span>
+          <span role="cell" class="mono">
+            {g.trib} <small>{esferas[g.esf as keyof typeof esferas]}</small>
+          </span>
+          <span role="cell" class="r mono">
+            {brl(g.valor)}
+          </span>
+          <span role="cell" class="r">
+            <span class="pill">{quando(g.dias)}</span>
+          </span>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-alerta]').forEach((root) => {
+    const btns = root.querySelectorAll<HTMLButtonElement>('[data-f]');
+    btns.forEach((b) =>
+      b.addEventListener('click', () => {
+        const f = b.dataset.f!;
+        btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        root.querySelectorAll<HTMLElement>('.tr[data-esf]').forEach((r) => {
+          r.hidden = f !== 'todas' && r.dataset.esf !== f;
+        });
+      }),
+    );
+  });
+</script>
+
+<style>
+  .demo-alerta {
+    display: grid;
+    gap: 14px;
+  }
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .filtros {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .filtros button {
+    font: inherit;
+    font-size: 13px;
+    border: 1px solid var(--line-2);
+    background: transparent;
+    color: var(--muted);
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .filtros button[aria-pressed='true'] {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+  }
+  .alerta {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--danger-soft);
+    border: 1px solid rgba(255, 122, 122, 0.35);
+    font-size: 14px;
+  }
+  .alerta div {
+    display: grid;
+  }
+  .alerta span:not(.sino) {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .sino {
+    color: var(--danger);
+    animation: pulse 1.6s ease infinite;
+  }
+  @keyframes pulse {
+    50% {
+      opacity: 0.25;
+    }
+  }
+  .tabela {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 14px;
+  }
+  .tr {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 0.9fr 1fr;
+    gap: 10px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--line);
+    align-items: center;
+  }
+  .tr[hidden] {
+    display: none;
+  }
+  .th {
+    border-top: 0;
+    background: var(--bg-2);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--faint);
+  }
+  .r {
+    text-align: right;
+  }
+  small {
+    color: var(--faint);
+    font-size: 11px;
+  }
+  .pill {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .n-alto .pill {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .n-medio .pill {
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  .n-ok .pill {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  @media (max-width: 560px) {
+    .tr {
+      grid-template-columns: 1fr auto;
+      row-gap: 2px;
+    }
+    .th {
+      display: none;
+    }
+    .tr > :nth-child(3) {
+      text-align: left;
+      color: var(--muted);
+    }
+  }
+</style>

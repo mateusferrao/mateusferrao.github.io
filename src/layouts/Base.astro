@@ -1,0 +1,205 @@
+---
+import '../styles/global.css';
+import { type Lang, ui, tr, contato } from '../data/i18n';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  alt: string; // URL da mesma página no outro idioma
+}
+const { lang, title, description, alt } = Astro.props;
+const site = Astro.site!;
+const canonical = new URL(Astro.url.pathname, site).href;
+const altUrl = new URL(alt, site).href;
+const ptUrl = lang === 'pt' ? canonical : altUrl;
+const enUrl = lang === 'en' ? canonical : altUrl;
+const home = lang === 'pt' ? '/' : '/en/';
+const og = new URL('/og.png', site).href;
+---
+
+<!doctype html>
+<html lang={lang === 'pt' ? 'pt-BR' : 'en'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="pt-BR" href={ptUrl} />
+    <link rel="alternate" hreflang="en" href={enUrl} />
+    <link rel="alternate" hreflang="x-default" href={ptUrl} />
+    <meta name="theme-color" content="#07090c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={og} />
+    <meta property="og:locale" content={lang === 'pt' ? 'pt_BR' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="author" content="Mateus Ferrão da Costa" />
+  </head>
+  <body>
+    <a class="skip" href="#conteudo">{lang === 'pt' ? 'Pular para o conteúdo' : 'Skip to content'}</a>
+    <header class="top">
+      <div class="wrap top-in">
+        <a class="logo mono" href={home} aria-label="Mateus Ferrão — início">
+          <span class="prompt">~/</span>mateus-ferrao<span class="cursor" aria-hidden="true"></span>
+        </a>
+        <nav aria-label={lang === 'pt' ? 'Principal' : 'Main'}>
+          <a href={`${home}#casos`}>{tr(ui.navCasos, lang)}</a>
+          <a href={`${home}#como`} class="hide-sm">{tr(ui.navComo, lang)}</a>
+          <a href={`${home}#trajetoria`} class="hide-sm">{tr(ui.navTrajetoria, lang)}</a>
+          <a href={`${home}#contato`}>{tr(ui.navContato, lang)}</a>
+          <a class="lang mono" href={alt} hreflang={lang === 'pt' ? 'en' : 'pt-BR'} aria-label={tr(ui.outraLinguaLabel, lang)}>
+            {tr(ui.outraLingua, lang)}
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="conteudo">
+      <slot />
+    </main>
+
+    <footer class="foot">
+      <div class="wrap foot-in">
+        <p class="mono">© 2026 Mateus Ferrão da Costa</p>
+        <p>{tr(ui.rodape, lang)}</p>
+        <p class="links">
+          <a href={`mailto:${contato.email}`}>E-mail</a>
+          <a href={contato.linkedin} rel="me">LinkedIn</a>
+          <a href={contato.github} rel="me">GitHub</a>
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // Revela seções ao rolar (desligado se o usuário reduzir movimento — via CSS)
+      const els = document.querySelectorAll('.reveal');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add('in');
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+        );
+        els.forEach((el) => io.observe(el));
+      } else {
+        els.forEach((el) => el.classList.add('in'));
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: -9999px;
+    top: 8px;
+    z-index: 100;
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+  .skip:focus {
+    left: 8px;
+  }
+  .top {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    background: rgba(7, 9, 12, 0.72);
+    border-bottom: 1px solid var(--line);
+  }
+  .top-in {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    gap: 16px;
+  }
+  .logo {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  .prompt {
+    color: var(--accent);
+  }
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    margin-left: 4px;
+    background: var(--accent);
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 2.4vw, 26px);
+    font-size: 14.5px;
+  }
+  nav a {
+    text-decoration: none;
+    color: var(--muted);
+    transition: color 0.15s;
+  }
+  nav a:hover {
+    color: var(--text);
+  }
+  .lang {
+    font-size: 12px;
+    border: 1px solid var(--line-2);
+    padding: 4px 9px;
+    border-radius: 7px;
+    color: var(--text) !important;
+  }
+  @media (max-width: 640px) {
+    .hide-sm {
+      display: none;
+    }
+    .logo {
+      font-size: 13px;
+    }
+  }
+  .foot {
+    border-top: 1px solid var(--line);
+    padding: 40px 0 56px;
+    color: var(--faint);
+    font-size: 14px;
+  }
+  .foot-in {
+    display: grid;
+    gap: 6px;
+  }
+  .foot p {
+    margin: 0;
+  }
+  .links {
+    display: flex;
+    gap: 18px;
+    margin-top: 8px !important;
+  }
+  .links a {
+    color: var(--muted);
+  }
+</style>

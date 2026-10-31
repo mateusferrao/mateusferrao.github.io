@@ -1,0 +1,659 @@
+---
+import Base from '../layouts/Base.astro';
+import Console from './Console.astro';
+import Demo from './Demo.astro';
+import { type Lang, ui, tr, rotas, contato } from '../data/i18n';
+import { destaques, outros, numerosHome, maisEmProducao, licencasNota, selos, casos } from '../data/casos';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+const slugDe = (c: (typeof casos)[number]) => rotas.caso(pt ? c.slug : c.slugEn, lang);
+
+const passos = pt
+  ? [
+      { n: '01', t: 'Entender a dor', d: 'Converso com quem faz o trabalho e defino o que é sucesso: horas, reais ou risco evitado.' },
+      { n: '02', t: 'Construir rápido com IA', d: 'Claude como par de programação, n8n para orquestrar e MCP para dar à IA acesso aos sistemas da empresa.' },
+      { n: '03', t: 'Colocar em produção', d: 'A base em engenharia me deixa entregar sem depender de outro time: integração, deploy e manutenção.' },
+      { n: '04', t: 'Fazer as pessoas usarem', d: 'Treinamento, skills e ferramentas onde as pessoas já trabalham, como o Teams e o WhatsApp.' },
+    ]
+  : [
+      { n: '01', t: 'Understand the pain', d: 'I talk to the people doing the work and define success: hours, money or risk avoided.' },
+      { n: '02', t: 'Build fast with AI', d: 'Claude as my pair programmer, n8n to orchestrate, and MCP to give AI access to company systems.' },
+      { n: '03', t: 'Ship to production', d: 'My engineering background lets me deliver without depending on another team: integration, deploy and upkeep.' },
+      { n: '04', t: 'Get people to use it', d: 'Training, skills and tools where people already work, like Teams and WhatsApp.' },
+    ];
+
+const stack = ['Claude', 'MCP', 'Skills', 'n8n', 'Gemini', 'DeepSeek', 'Cursor', 'Lovable', 'Vercel', 'Supabase', 'WhatsApp Cloud API', 'Meta CAPI · Graph', 'Kommo', 'ManyChat', 'PostHog', 'Clarity', 'Python', 'TypeScript'];
+
+const trajetoria = pt
+  ? [
+      { q: 'abr 2026 — hoje', o: 'Hy Brazil Energia', r: 'Engenheiro de Software | IA', d: 'Único especialista de IA da empresa. Agentes, servidores MCP, ferramentas internas e o programa de adoção de IA.' },
+      { q: 'nov 2025 — hoje', o: 'Trackify (antes Automato)', r: 'Cofundador', d: 'Marketing orientado a dados para educação e saúde: rastreamento, análise de dados e automações de conversão.' },
+      { q: 'out 2025 — abr 2026', o: 'GFT Technologies', r: 'Engenheiro de Software', d: 'Componentes de uma plataforma de documentos com LLMs e OCR para uma gestora de private equity dos EUA.' },
+      { q: 'ago 2024 — out 2025', o: 'dti digital', r: 'Engenheiro de Software', d: 'Modernização de um ERP corporativo e automação do fluxo de documentos fiscais.' },
+      { q: 'abr 2023 — ago 2024', o: 'Instituto DDS', r: 'Analista de Sistema', d: 'Automação de processos do ERP: a gestão de benefícios do RH passou de dias para poucas horas.' },
+    ]
+  : [
+      { q: 'Apr 2026 — now', o: 'Hy Brazil Energia', r: 'Software Engineer | AI', d: "The company's only AI specialist. Agents, MCP servers, internal tools and the AI adoption program." },
+      { q: 'Nov 2025 — now', o: 'Trackify (formerly Automato)', r: 'Co-founder', d: 'Data-driven marketing for education and healthcare: tracking, data analysis and conversion automation.' },
+      { q: 'Oct 2025 — Apr 2026', o: 'GFT Technologies', r: 'Software Engineer', d: 'Components of an LLM + OCR document platform for a US private equity firm.' },
+      { q: 'Aug 2024 — Oct 2025', o: 'dti digital', r: 'Software Engineer', d: 'Modernization of a corporate ERP and automation of the tax-document flow.' },
+      { q: 'Apr 2023 — Aug 2024', o: 'Instituto DDS', r: 'Systems Analyst', d: 'ERP process automation: HR benefits management went from days to a few hours.' },
+    ];
+
+const title = pt ? 'Mateus Ferrão — AI Builder' : 'Mateus Ferrão — AI Builder';
+const description = pt
+  ? 'Resolvo problemas de negócio com IA, do problema à produção. Agentes, servidores MCP, ferramentas internas e automações, com casos e demos em dados fictícios.'
+  : 'I solve business problems with AI, from the problem to production. Agents, MCP servers, internal tools and automations, with cases and demos on fictitious data.';
+---
+
+<Base lang={lang} title={title} description={description} alt={pt ? '/en/' : '/'}>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="bg" aria-hidden="true"></div>
+    <div class="wrap hero-in">
+      <div class="hero-txt">
+        <p class="kicker">{tr(ui.heroKicker, lang)}</p>
+        <h1>
+          {pt ? (
+            <>Resolvo problemas de negócio com IA, <em>do problema à produção.</em></>
+          ) : (
+            <>I solve business problems with AI, <em>from the problem to production.</em></>
+          )}
+        </h1>
+        <p class="sub">{tr(ui.heroSub, lang)}</p>
+        <div class="ctas">
+          <a class="btn btn-primary" href="#casos">{tr(ui.verCasos, lang)} ↓</a>
+          <a class="btn" href={contato.linkedin}>LinkedIn</a>
+          <a class="btn" href={contato.github}>GitHub</a>
+        </div>
+      </div>
+      <Console lang={lang} />
+    </div>
+  </section>
+
+  <!-- NÚMEROS -->
+  <section class="nums" aria-labelledby="t-nums">
+    <div class="wrap">
+      <h2 id="t-nums" class="sr-only">{tr(ui.numerosTitulo, lang)}</h2>
+      <ul class="num-grid">
+        {
+          numerosHome.map((n) => (
+            <li class="reveal">
+              <span class="nv">{tr(n.valor, lang)}</span>
+              <span class="nl">{tr(n.rotulo, lang)}</span>
+              {(n.selo === 'confirmado' || n.selo === 'medido') && (
+                <span class={`selo selo-${n.selo}`}>{tr(selos[n.selo], lang)}</span>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- DESTAQUES -->
+  <section class="section" id="casos">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="kicker">{tr(ui.destaquesTitulo, lang)}</p>
+        <h2>{pt ? 'O que construí, e o que mudou depois' : 'What I built, and what changed after'}</h2>
+        <p>{tr(ui.destaquesSub, lang)}</p>
+      </div>
+
+      <div class="feat-list">
+        {
+          destaques.map((c, i) => (
+            <article class="feat panel reveal">
+              <div class="feat-txt">
+                <p class="org mono">
+                  <span class="idx">0{i + 1}</span> {tr(c.org, lang)}
+                </p>
+                <h3>
+                  <a href={slugDe(c)}>{tr(c.titulo, lang)}</a>
+                </h3>
+                <p class="res">{tr(c.resumo, lang)}</p>
+                <div class="metric">
+                  <span class="mv">{tr(c.numero.valor, lang)}</span>
+                  <span class="ml">{tr(c.numero.rotulo, lang)}</span>
+                  <span class={`selo selo-${c.numero.selo}`}>{tr(selos[c.numero.selo], lang)}</span>
+                </div>
+                <a class="link" href={slugDe(c)}>
+                  {tr(ui.lerCaso, lang)} →
+                </a>
+              </div>
+              <div class="feat-demo">
+                <Demo lang={lang} tipo={c.demo} />
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- OUTROS -->
+  <section class="section tight">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="kicker">{tr(ui.outrosTitulo, lang)}</p>
+        <h2>{pt ? 'Mais quatro, cada um com demo' : 'Four more, each with a demo'}</h2>
+      </div>
+      <div class="cards">
+        {
+          outros.map((c, i) => (
+            <a class="card panel reveal" href={slugDe(c)}>
+              <p class="org mono">
+                <span class="idx">0{i + 4}</span> {tr(c.org, lang)}
+              </p>
+              <h3>{tr(c.titulo, lang)}</h3>
+              <p class="res">{tr(c.resumo, lang)}</p>
+              <div class="metric sm">
+                <span class="mv">{tr(c.numero.valor, lang)}</span>
+                <span class="ml">{tr(c.numero.rotulo, lang)}</span>
+              </div>
+              <span class="go mono">{tr(ui.lerCaso, lang)} →</span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIS EM PRODUÇÃO -->
+  <section class="section tight">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="kicker">{pt ? 'Também em produção' : 'Also in production'}</p>
+        <h2>{tr(ui.maisTitulo, lang)}</h2>
+      </div>
+      <ul class="mini">
+        {
+          maisEmProducao.map((m) => (
+            <li class="reveal">
+              <span class="mono tag">{tr(m.org, lang)}</span>
+              <strong>{tr(m.titulo, lang)}</strong>
+              <span>{tr(m.texto, lang)}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="nota reveal">{tr(licencasNota, lang)}</p>
+    </div>
+  </section>
+
+  <!-- COMO CONSTRUO -->
+  <section class="section" id="como">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="kicker">{tr(ui.comoTitulo, lang)}</p>
+        <h2>{pt ? 'IA como alavanca, engenharia como velocidade' : 'AI as leverage, engineering as speed'}</h2>
+        <p>
+          {pt
+            ? 'O que define o trabalho é o problema de negócio resolvido. A engenharia entra para encurtar o caminho até a produção.'
+            : 'What defines the work is the business problem solved. Engineering is there to shorten the path to production.'}
+        </p>
+      </div>
+      <ol class="passos">
+        {
+          passos.map((p) => (
+            <li class="reveal">
+              <span class="mono pn">{p.n}</span>
+              <strong>{p.t}</strong>
+              <span>{p.d}</span>
+            </li>
+          ))
+        }
+      </ol>
+      <ul class="chips stack reveal" aria-label={pt ? 'Ferramentas que uso' : 'Tools I use'}>
+        {stack.map((s) => <li>{s}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <!-- TRAJETÓRIA -->
+  <section class="section tight" id="trajetoria">
+    <div class="wrap traj">
+      <div class="section-head reveal">
+        <p class="kicker">{tr(ui.trajetoriaTitulo, lang)}</p>
+        <h2>{pt ? 'De onde vem a velocidade' : 'Where the speed comes from'}</h2>
+        <p>
+          {pt
+            ? 'Engenharia de Software na PUC Minas (5º período, conclusão prevista em jul/2028). AWS Cloud Practitioner e OCI AI Foundations. Português nativo, italiano fluente, inglês avançado e espanhol intermediário.'
+            : 'Software Engineering at PUC Minas (5th semester, expected graduation Jul 2028). AWS Cloud Practitioner and OCI AI Foundations. Native Portuguese, fluent Italian, advanced English and intermediate Spanish.'}
+        </p>
+      </div>
+      <ol class="tl">
+        {
+          trajetoria.map((t) => (
+            <li class="reveal">
+              <span class="mono q">{t.q}</span>
+              <div>
+                <strong>{t.o}</strong> <span class="r">· {t.r}</span>
+                <p>{t.d}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <section class="section contato" id="contato">
+    <div class="wrap">
+      <div class="cta panel reveal">
+        <p class="kicker">{tr(ui.navContato, lang)}</p>
+        <h2>{tr(ui.contatoTitulo, lang)}</h2>
+        <p>{tr(ui.contatoSub, lang)}</p>
+        <div class="ctas">
+          <a class="btn btn-primary" href={`mailto:${contato.email}`}>{contato.email}</a>
+          <a class="btn" href={contato.linkedin}>LinkedIn</a>
+          <a class="btn" href={contato.github}>GitHub</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    padding: clamp(48px, 8vw, 96px) 0 clamp(48px, 7vw, 88px);
+    overflow: hidden;
+  }
+  .bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(60% 50% at 78% 30%, rgba(124, 245, 176, 0.13), transparent 70%),
+      radial-gradient(50% 50% at 10% 0%, rgba(138, 180, 255, 0.1), transparent 70%),
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 44px 44px,
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 44px 44px;
+    mask-image: radial-gradient(120% 90% at 50% 20%, #000 40%, transparent 85%);
+    -webkit-mask-image: radial-gradient(120% 90% at 50% 20%, #000 40%, transparent 85%);
+    pointer-events: none;
+  }
+  .hero-in {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+  @media (max-width: 920px) {
+    .hero-in {
+      grid-template-columns: 1fr;
+    }
+  }
+  h1 {
+    font-size: clamp(36px, 5.6vw, 66px);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    font-weight: 700;
+    margin: 14px 0 20px;
+  }
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--accent), #b9ffd6 50%, var(--info));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .sub {
+    font-size: clamp(16px, 1.6vw, 18.5px);
+    color: var(--muted);
+    max-width: 560px;
+    margin: 0 0 28px;
+  }
+  .ctas {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .nums {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+  }
+  .num-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .num-grid li {
+    padding: 26px 18px 24px;
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    border-left: 1px solid var(--line);
+  }
+  .num-grid li:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .nv {
+    font-size: clamp(22px, 2.4vw, 30px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .nl {
+    color: var(--muted);
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+  .num-grid .selo {
+    justify-self: start;
+    font-size: 10.5px;
+    margin-top: 4px;
+  }
+  @media (max-width: 1080px) {
+    .num-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .num-grid li:nth-child(4) {
+      border-left: 0;
+      padding-left: 0;
+    }
+    .num-grid li:nth-child(n + 4) {
+      border-top: 1px solid var(--line);
+    }
+  }
+  @media (max-width: 600px) {
+    .num-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .num-grid li {
+      padding: 20px 12px;
+    }
+    .nv {
+      font-size: 21px;
+      white-space: normal;
+    }
+    .num-grid li:nth-child(odd) {
+      border-left: 0;
+      padding-left: 0;
+    }
+    .num-grid li:nth-child(4) {
+      border-left: 1px solid var(--line);
+      padding-left: 12px;
+    }
+    .num-grid li:nth-child(n + 3) {
+      border-top: 1px solid var(--line);
+    }
+  }
+
+  .feat-list {
+    display: grid;
+    gap: 22px;
+  }
+  .feat {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: clamp(20px, 3.5vw, 44px);
+    padding: clamp(20px, 3vw, 34px);
+    align-items: start;
+  }
+  @media (max-width: 920px) {
+    .feat {
+      grid-template-columns: 1fr;
+    }
+  }
+  .org {
+    font-size: 12.5px;
+    color: var(--faint);
+    margin: 0 0 10px;
+  }
+  .idx {
+    color: var(--accent);
+    margin-right: 6px;
+  }
+  .feat h3,
+  .card h3 {
+    font-size: clamp(22px, 2.4vw, 28px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    font-weight: 650;
+  }
+  .feat h3 a {
+    text-decoration: none;
+  }
+  .feat h3 a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 5px;
+  }
+  .res {
+    color: var(--muted);
+    margin: 0 0 20px;
+  }
+  .metric {
+    display: grid;
+    gap: 4px;
+    margin-bottom: 20px;
+    padding: 16px 0;
+    border-top: 1px dashed var(--line-2);
+    border-bottom: 1px dashed var(--line-2);
+  }
+  .metric .mv {
+    font-size: clamp(32px, 4vw, 46px);
+    font-weight: 750;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--accent);
+  }
+  .metric .ml {
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .metric .selo {
+    justify-self: start;
+    margin-top: 6px;
+  }
+  .metric.sm {
+    border: 0;
+    padding: 0;
+    margin: auto 0 14px;
+  }
+  .metric.sm .mv {
+    font-size: 28px;
+  }
+  .link {
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .link:hover {
+    text-decoration: underline;
+  }
+  .feat-demo {
+    min-width: 0;
+  }
+
+  .section.tight {
+    padding-top: 24px;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 760px) {
+    .cards {
+      grid-template-columns: 1fr;
+    }
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    text-decoration: none;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card:hover {
+    border-color: rgba(124, 245, 176, 0.45);
+    transform: translateY(-2px);
+  }
+  .card h3 {
+    font-size: 21px;
+  }
+  .card .res {
+    font-size: 15px;
+  }
+  .go {
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  .mini {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  @media (max-width: 900px) {
+    .mini {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .mini {
+      grid-template-columns: 1fr;
+    }
+  }
+  .mini li {
+    background: var(--bg-2);
+    padding: 20px;
+    display: grid;
+    gap: 6px;
+    align-content: start;
+  }
+  .mini strong {
+    font-size: 16px;
+  }
+  .mini span:last-child {
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .tag {
+    font-size: 11px;
+    color: var(--accent);
+  }
+  .nota {
+    margin: 18px 0 0;
+    color: var(--muted);
+    font-size: 14.5px;
+    max-width: 820px;
+  }
+
+  .passos {
+    list-style: none;
+    margin: 0 0 28px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 960px) {
+    .passos {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .passos {
+      grid-template-columns: 1fr;
+    }
+  }
+  .passos li {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    padding: 20px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--panel), transparent);
+  }
+  .pn {
+    color: var(--accent);
+    font-size: 12.5px;
+  }
+  .passos strong {
+    font-size: 17px;
+  }
+  .passos span:last-child {
+    color: var(--muted);
+    font-size: 14.5px;
+  }
+
+  .tl {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .tl li {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  @media (max-width: 640px) {
+    .tl li {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+  .q {
+    color: var(--faint);
+    font-size: 12.5px;
+    padding-top: 3px;
+  }
+  .tl strong {
+    font-size: 17px;
+  }
+  .tl .r {
+    color: var(--muted);
+  }
+  .tl p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .cta {
+    padding: clamp(28px, 5vw, 56px);
+    background:
+      radial-gradient(80% 120% at 100% 0%, rgba(124, 245, 176, 0.12), transparent 60%),
+      linear-gradient(180deg, var(--panel), var(--bg-2));
+  }
+  .cta h2 {
+    font-size: clamp(30px, 4.6vw, 52px);
+    letter-spacing: -0.03em;
+    margin: 10px 0 12px;
+    line-height: 1.05;
+  }
+  .cta p:not(.kicker) {
+    color: var(--muted);
+    max-width: 640px;
+    margin: 0 0 26px;
+  }
+  .cta .btn-primary {
+    word-break: break-all;
+  }
+</style>

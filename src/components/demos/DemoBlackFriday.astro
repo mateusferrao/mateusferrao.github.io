@@ -1,0 +1,177 @@
+---
+import { type Lang } from '../../data/i18n';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+const eventos = pt
+  ? [
+      { o: 'navegador', t: "pixel.track('Lead', { eventID: 'lead-7f3a' })", c: 'info' },
+      { o: 'n8n', t: 'lead recebido do formulário → gravado na planilha', c: 'ok' },
+      { o: 'CAPI', t: "pixel 1 · Lead · event_id 'lead-7f3a' ✓", c: 'ok' },
+      { o: 'CAPI', t: "pixel 2 · Lead · event_id 'lead-7f3a' ✓", c: 'ok' },
+      { o: 'Meta', t: 'navegador + servidor com o mesmo event_id → conta 1 lead por pixel', c: 'acc' },
+    ]
+  : [
+      { o: 'browser', t: "pixel.track('Lead', { eventID: 'lead-7f3a' })", c: 'info' },
+      { o: 'n8n', t: 'lead received from form → stored in the sheet', c: 'ok' },
+      { o: 'CAPI', t: "pixel 1 · Lead · event_id 'lead-7f3a' ✓", c: 'ok' },
+      { o: 'CAPI', t: "pixel 2 · Lead · event_id 'lead-7f3a' ✓", c: 'ok' },
+      { o: 'Meta', t: 'browser + server with the same event_id → 1 lead counted per pixel', c: 'acc' },
+    ];
+---
+
+<div class="demo-bf" data-bf data-ev={JSON.stringify(eventos)}>
+  <figure class="print">
+    <img
+      src="/img/bf-captura.webp"
+      width="780"
+      height="1520"
+      loading="lazy"
+      decoding="async"
+      alt={pt
+        ? 'Print da página pública de captura da Black Friday da Amar Saber, sem dados de leads'
+        : "Screenshot of Amar Saber's public Black Friday sign-up page, with no lead data"}
+    />
+    <figcaption>{pt ? 'Página pública de captura (print, sem dados de leads)' : 'Public sign-up page (screenshot, no lead data)'}</figcaption>
+  </figure>
+
+  <div class="log-wrap">
+    <div class="head">
+      <button type="button" class="btn btn-primary" data-go>{pt ? '▶ Simular um cadastro' : '▶ Simulate a sign-up'}</button>
+      <span class="demo-tag">{pt ? 'Evento fictício' : 'Fictitious event'}</span>
+    </div>
+    <ol class="log mono" data-log aria-live="polite">
+      <li class="vazio">{pt ? 'O que acontece quando alguém se cadastra:' : 'What happens when someone signs up:'}</li>
+    </ol>
+    <p class="nota">
+      {pt
+        ? 'Por que deduplicar: o mesmo lead chega pelo navegador e pelo servidor. Sem o event_id igual, a Meta contaria dois e o algoritmo otimizaria em cima de número inflado.'
+        : 'Why deduplicate: the same lead arrives from the browser and from the server. Without a matching event_id, Meta would count two and optimize on an inflated number.'}
+    </p>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-bf]').forEach((root) => {
+    const ev = JSON.parse(root.dataset.ev!);
+    const log = root.querySelector<HTMLElement>('[data-log]')!;
+    const reduz = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, reduz ? 0 : ms));
+    let run = 0;
+    root.querySelector('[data-go]')!.addEventListener('click', async () => {
+      const my = ++run;
+      log.innerHTML = '';
+      for (const e of ev) {
+        await wait(520);
+        if (my !== run) return;
+        const li = document.createElement('li');
+        li.className = e.c;
+        const o = document.createElement('span');
+        o.className = 'o';
+        o.textContent = e.o;
+        const t = document.createElement('span');
+        t.textContent = e.t;
+        li.append(o, t);
+        log.appendChild(li);
+      }
+    });
+  });
+</script>
+
+<style>
+  .demo-bf {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 18px;
+    align-items: start;
+  }
+  @media (max-width: 760px) {
+    .demo-bf {
+      grid-template-columns: 1fr;
+    }
+  }
+  .print {
+    margin: 0;
+    border: 1px solid var(--line-2);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .print img {
+    width: 100%;
+    height: auto;
+    max-height: 520px;
+    object-fit: cover;
+    object-position: top;
+  }
+  .print figcaption {
+    background: var(--bg-2);
+    color: var(--faint);
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  .log-wrap {
+    display: grid;
+    gap: 12px;
+  }
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .head .btn {
+    font-size: 13.5px;
+    padding: 9px 14px;
+  }
+  .log {
+    list-style: none;
+    margin: 0;
+    padding: 14px;
+    border-radius: 12px;
+    background: #090c10;
+    border: 1px solid var(--line);
+    font-size: 12.5px;
+    display: grid;
+    gap: 8px;
+    min-height: 210px;
+    align-content: start;
+  }
+  .log :global(li) {
+    display: grid;
+    grid-template-columns: 82px 1fr;
+    gap: 10px;
+    animation: up 0.25s ease;
+    word-break: break-word;
+  }
+  .log .vazio {
+    display: block;
+    color: var(--faint);
+  }
+  .log :global(.o) {
+    color: var(--faint);
+  }
+  .log :global(.info) {
+    color: var(--info);
+  }
+  .log :global(.ok) {
+    color: var(--text);
+  }
+  .log :global(.acc) {
+    color: var(--accent);
+  }
+  @keyframes up {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+  .nota {
+    margin: 0;
+    font-size: 14px;
+    color: var(--muted);
+  }
+</style>

@@ -1,0 +1,111 @@
+---
+import { type Lang, tr } from '../data/i18n';
+import type { Trilha } from '../data/casos';
+interface Props {
+  lang: Lang;
+  trilhas: Trilha[];
+}
+const { lang, trilhas } = Astro.props;
+---
+
+<div class="fluxo">
+  {
+    trilhas.map((tl) => (
+      <div class="trilha">
+        {tl.titulo && <p class="tt mono">{tr(tl.titulo, lang)}</p>}
+        <ol>
+          {tl.nos.map((n) => (
+            <li class={`no ${n.tipo ?? ''}`}>
+              <strong>{tr(n.t, lang)}</strong>
+              {n.sub && <span>{tr(n.sub, lang)}</span>}
+            </li>
+          ))}
+        </ol>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .fluxo {
+    display: grid;
+    gap: 18px;
+  }
+  .tt {
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--faint);
+    margin: 0 0 8px;
+  }
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+    gap: 34px;
+  }
+  .no {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 14px 14px 13px;
+    border-radius: 12px;
+    border: 1px solid var(--line-2);
+    background: var(--bg-2);
+    display: grid;
+    align-content: start;
+    gap: 2px;
+  }
+  .no strong {
+    font-size: 14.5px;
+    font-weight: 620;
+  }
+  .no span {
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .no::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    border-radius: 0 0 2px 2px;
+    background: var(--line-2);
+  }
+  .no.fonte::before { background: var(--info); }
+  .no.ia::before { background: var(--accent); }
+  .no.acao::before { background: var(--warn); }
+  .no.pessoa::before { background: #c9a7ff; }
+  .no.ia {
+    border-color: rgba(124, 245, 176, 0.45);
+    box-shadow: 0 0 30px -12px rgba(124, 245, 176, 0.5);
+  }
+  .no:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -30px;
+    width: 26px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--line-2), var(--accent));
+  }
+  @media (max-width: 760px) {
+    ol {
+      flex-direction: column;
+      gap: 22px;
+    }
+    .no:not(:last-child)::after {
+      top: auto;
+      bottom: -18px;
+      right: auto;
+      left: 50%;
+      width: 1px;
+      height: 14px;
+      background: linear-gradient(180deg, var(--line-2), var(--accent));
+    }
+  }
+</style>

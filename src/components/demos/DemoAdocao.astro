@@ -1,0 +1,185 @@
+---
+import { type Lang } from '../../data/i18n';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+---
+
+<div class="demo-adocao" data-adocao>
+  <div class="bloco">
+    <div class="topo">
+      <span class="big">~60</span>
+      <span class="lbl">{pt ? 'pessoas treinadas' : 'people trained'}</span>
+    </div>
+    <div class="pontos" aria-hidden="true">{Array.from({ length: 60 }, () => <i />)}</div>
+  </div>
+
+  <div class="bloco">
+    <div class="topo">
+      <span class="big">11</span>
+      <span class="lbl">{pt ? 'setores com IA no dia a dia' : 'departments using AI daily'}</span>
+    </div>
+    <div class="setores" aria-hidden="true">{Array.from({ length: 11 }, () => <i />)}</div>
+  </div>
+
+  <div class="bloco">
+    <div class="topo">
+      <span class="big">25<small>/35</small></span>
+      <span class="lbl">{pt ? 'licenças de Claude (meta até o fim do ano)' : 'Claude licenses (year-end target)'}</span>
+    </div>
+    <div class="barra" aria-hidden="true"><span></span></div>
+  </div>
+
+  <div class="bloco">
+    <div class="topo">
+      <span class="big">10</span>
+      <span class="lbl">{pt ? 'skills internas, sem expor dados' : 'internal skills, no data exposure'}</span>
+    </div>
+    <div class="skills" aria-hidden="true">
+      {Array.from({ length: 10 }, (_, i) => <i class="mono">{String(i + 1).padStart(2, '0')}</i>)}
+    </div>
+  </div>
+
+  <p class="quote">
+    <span class="mono">~4h/{pt ? 'dia' : 'day'}</span>
+    {pt
+      ? 'de trabalho manual poupadas por uma única skill, segundo a pessoa que a usa.'
+      : 'of manual work saved by a single skill, according to the person who uses it.'}
+  </p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-adocao]').forEach((root) => {
+    const io = new IntersectionObserver((es) => {
+      if (es.some((e) => e.isIntersecting)) {
+        root.classList.add('vivo');
+        io.disconnect();
+      }
+    });
+    io.observe(root);
+  });
+</script>
+
+<style>
+  .demo-adocao {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 620px) {
+    .demo-adocao {
+      grid-template-columns: 1fr;
+    }
+  }
+  .bloco {
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--bg-2);
+    display: grid;
+    gap: 14px;
+    align-content: start;
+  }
+  .topo {
+    display: grid;
+  }
+  .big {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .big small {
+    font-size: 18px;
+    color: var(--faint);
+  }
+  .lbl {
+    color: var(--muted);
+    font-size: 13.5px;
+    margin-top: 4px;
+  }
+  .pontos {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    gap: 5px;
+  }
+  .pontos i,
+  .setores i {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--panel-2);
+    transition: background 0.4s, box-shadow 0.4s;
+  }
+  .setores {
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    gap: 6px;
+  }
+  .setores i {
+    border-radius: 6px;
+    aspect-ratio: 1 / 1.4;
+  }
+  .demo-adocao:global(.vivo) .pontos i,
+  .demo-adocao:global(.vivo) .setores i {
+    background: var(--accent);
+    box-shadow: 0 0 8px rgba(124, 245, 176, 0.5);
+  }
+  .barra {
+    height: 10px;
+    border-radius: 99px;
+    background: var(--panel-2);
+    overflow: hidden;
+  }
+  .barra span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--info), var(--accent));
+    transition: width 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .demo-adocao:global(.vivo) .barra span {
+    width: 71.4%;
+  }
+  .skills {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+  .skills i {
+    font-style: normal;
+    font-size: 11px;
+    text-align: center;
+    padding: 7px 0;
+    border-radius: 7px;
+    border: 1px solid var(--line-2);
+    color: var(--muted);
+    transition: border-color 0.4s, color 0.4s;
+  }
+  .demo-adocao:global(.vivo) .skills i {
+    border-color: rgba(124, 245, 176, 0.5);
+    color: var(--accent);
+  }
+  .quote {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 14px 16px;
+    border-left: 3px solid var(--info);
+    background: var(--info-soft);
+    border-radius: 0 12px 12px 0;
+    font-size: 15px;
+  }
+  .quote span {
+    color: var(--info);
+    font-weight: 700;
+    margin-right: 6px;
+  }
+</style>
+<style is:global>
+  /* atraso escalonado (apenas visual) */
+  [data-adocao] .pontos i:nth-child(3n) { transition-delay: 0.1s; }
+  [data-adocao] .pontos i:nth-child(3n + 1) { transition-delay: 0.25s; }
+  [data-adocao] .pontos i:nth-child(5n) { transition-delay: 0.4s; }
+  [data-adocao] .setores i:nth-child(odd) { transition-delay: 0.2s; }
+</style>
