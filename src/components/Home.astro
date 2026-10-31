@@ -222,8 +222,13 @@ const description = pt
     <div class="wrap traj">
       <div class="section-head reveal">
         <p class="kicker">{tr(ui.trajetoriaTitulo, lang)}</p>
-        <h2>{pt ? 'De onde vem a velocidade' : 'Where the speed comes from'}</h2>
+        <h2>{pt ? 'ERP, documentos e processos internos desde 2023. Agora, com IA.' : 'ERPs, documents and internal processes since 2023. Now with AI.'}</h2>
         <p>
+          {pt
+            ? 'O fio da trajetória é um só: tirar trabalho manual de ERPs, documentos e processos internos. Primeiro com código e automação; na GFT, com LLMs e OCR; hoje, com agentes e servidores MCP em produção.'
+            : 'There is one thread through all of it: removing manual work from ERPs, documents and internal processes. First with code and automation; at GFT, with LLMs and OCR; today, with agents and MCP servers in production.'}
+        </p>
+        <p class="formacao">
           {pt
             ? 'Engenharia de Software na PUC Minas (5º período, conclusão prevista em jul/2028). AWS Cloud Practitioner e OCI AI Foundations. Português nativo, italiano fluente, inglês avançado e espanhol intermediário.'
             : 'Software Engineering at PUC Minas (5th semester, expected graduation Jul 2028). AWS Cloud Practitioner and OCI AI Foundations. Native Portuguese, fluent Italian, advanced English and intermediate Spanish.'}
@@ -621,6 +626,10 @@ const description = pt
     font-size: 14.5px;
   }
 
+  .formacao {
+    margin-top: 12px !important;
+    font-size: 15px;
+  }
   .tl {
     list-style: none;
     margin: 0;
