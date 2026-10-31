@@ -11,7 +11,7 @@ const proibidos = [
   [/agente de tr[áa]fego|traffic agent/i, 'agente de tráfego nunca rodou'],
   [/st[eé]ticos/i, 'nome da clínica não pode aparecer'],
   [/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/, 'formato de CNPJ real'],
-  [/99481|1420\b/, 'telefone pessoal'],
+  [/\(?\b\d{2}\)?\s?9\d{4}-?\d{4}\b/, 'parece um número de celular'],
   [/ghp_[A-Za-z0-9]{10,}|sk-[A-Za-z0-9]{16,}|AIza[0-9A-Za-z_-]{20,}/, 'parece um segredo'],
 ];
 

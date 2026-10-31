@@ -76,6 +76,32 @@ const title = `${tr(c.titulo, lang)} — Mateus Ferrão`;
         <div class="panel pad"><Demo lang={lang} tipo={c.demo} /></div>
       </section>
 
+      <section class="bloco" id="evidencia">
+        <div class="bh">
+          <h2>{pt ? 'Evidência real' : 'Real evidence'}</h2>
+          <p>
+            {c.evidencias
+              ? pt ? 'Print do sistema em produção, sem dados sensíveis.' : 'Screenshot of the system in production, with no sensitive data.'
+              : pt ? 'Por que não há print real aqui.' : 'Why there is no real screenshot here.'}
+          </p>
+        </div>
+        {c.evidencias ? (
+          c.evidencias.map((e) => (
+            <figure class={`panel ev-fig ${e.estreita ? 'estreita' : ''}`}>
+              <span class="ev-tag mono">{pt ? 'Print real · sem dados sensíveis' : 'Real screenshot · no sensitive data'}</span>
+              <img src={e.src} width={e.w} height={e.h} alt={tr(e.alt, lang)} loading="lazy" decoding="async" />
+              <figcaption>{tr(e.legenda, lang)}</figcaption>
+            </figure>
+          ))
+        ) : (
+          <p class="panel ev-nota">
+            {pt
+              ? 'Sem print real deste caso por confidencialidade: é um sistema interno com dados da empresa ou do cliente. A demo acima usa dados fictícios.'
+              : 'No real screenshot for this case, for confidentiality: it is an internal system with company or client data. The demo above uses fictitious data.'}
+          </p>
+        )}
+      </section>
+
       <section class="bloco">
         <div class="bh">
           <h2>{tr(ui.arquitetura, lang)}</h2>
@@ -233,6 +259,40 @@ const title = `${tr(c.titulo, lang)} — Mateus Ferrão`;
   }
   .pad {
     padding: clamp(14px, 3vw, 28px);
+  }
+  .ev-fig {
+    margin: 0;
+    padding: clamp(12px, 2.5vw, 20px);
+    display: grid;
+    gap: 12px;
+  }
+  .ev-fig.estreita {
+    max-width: 440px;
+  }
+  .ev-fig img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 1px solid var(--line-2);
+  }
+  .ev-tag {
+    justify-self: start;
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid rgba(124, 245, 176, 0.5);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .ev-fig figcaption {
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .ev-nota {
+    margin: 0;
+    padding: 16px 18px;
+    color: var(--muted);
+    font-size: 15px;
+    border-style: dashed;
   }
   .pn {
     margin-top: clamp(48px, 8vw, 88px);

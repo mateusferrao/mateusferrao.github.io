@@ -26,18 +26,18 @@ const passos = pt
       { n: '04', t: 'Get people to use it', d: 'Training, skills and tools where people already work, like Teams and WhatsApp.' },
     ];
 
-const stack = ['Claude', 'MCP', 'Skills', 'n8n', 'Gemini', 'DeepSeek', 'Cursor', 'Lovable', 'Vercel', 'Supabase', 'WhatsApp Cloud API', 'Meta CAPI · Graph', 'Kommo', 'ManyChat', 'PostHog', 'Clarity', 'Python', 'TypeScript'];
+const stack = ['Claude', 'GPT', 'Gemini', 'DeepSeek', 'MCP', 'Skills', 'n8n', 'Cursor', 'Lovable', 'Replit', 'AWS', 'Vercel', 'Supabase', 'WhatsApp Cloud API', 'Meta CAPI · Graph', 'Kommo', 'ManyChat', 'PostHog', 'Clarity', 'Python', 'TypeScript'];
 
 const trajetoria = pt
   ? [
-      { q: 'abr 2026 — hoje', o: 'Hy Brazil Energia', r: 'Engenheiro de Software | IA', d: 'Único especialista de IA da empresa. Agentes, servidores MCP, ferramentas internas e o programa de adoção de IA.' },
+      { q: 'abr 2026 — hoje', o: 'Hy Brazil Energia', r: 'Engenheiro de Software | IA & Automação', d: 'Único especialista de IA da empresa. Agentes, servidores MCP, ferramentas internas e o programa de adoção de IA.' },
       { q: 'nov 2025 — hoje', o: 'Trackify (antes Automato)', r: 'Cofundador', d: 'Marketing orientado a dados para educação e saúde: rastreamento, análise de dados e automações de conversão.' },
       { q: 'out 2025 — abr 2026', o: 'GFT Technologies', r: 'Engenheiro de Software', d: 'Componentes de uma plataforma de documentos com LLMs e OCR para uma gestora de private equity dos EUA.' },
       { q: 'ago 2024 — out 2025', o: 'dti digital', r: 'Engenheiro de Software', d: 'Modernização de um ERP corporativo e automação do fluxo de documentos fiscais.' },
       { q: 'abr 2023 — ago 2024', o: 'Instituto DDS', r: 'Analista de Sistema', d: 'Automação de processos do ERP: a gestão de benefícios do RH passou de dias para poucas horas.' },
     ]
   : [
-      { q: 'Apr 2026 — now', o: 'Hy Brazil Energia', r: 'Software Engineer | AI', d: "The company's only AI specialist. Agents, MCP servers, internal tools and the AI adoption program." },
+      { q: 'Apr 2026 — now', o: 'Hy Brazil Energia', r: 'Software Engineer | AI & Automation', d: "The company's only AI specialist. Agents, MCP servers, internal tools and the AI adoption program." },
       { q: 'Nov 2025 — now', o: 'Trackify (formerly Automato)', r: 'Co-founder', d: 'Data-driven marketing for education and healthcare: tracking, data analysis and conversion automation.' },
       { q: 'Oct 2025 — Apr 2026', o: 'GFT Technologies', r: 'Software Engineer', d: 'Components of an LLM + OCR document platform for a US private equity firm.' },
       { q: 'Aug 2024 — Oct 2025', o: 'dti digital', r: 'Software Engineer', d: 'Modernization of a corporate ERP and automation of the tax-document flow.' },
@@ -86,7 +86,7 @@ const description = pt
             <li class="reveal">
               <span class="nv">{tr(n.valor, lang)}</span>
               <span class="nl">{tr(n.rotulo, lang)}</span>
-              {(n.selo === 'confirmado' || n.selo === 'medido') && (
+              {(n.selo === 'confirmado' || n.selo === 'medido' || n.selo === 'app') && (
                 <span class={`selo selo-${n.selo}`}>{tr(selos[n.selo], lang)}</span>
               )}
             </li>
@@ -125,6 +125,7 @@ const description = pt
                 <a class="link" href={slugDe(c)}>
                   {tr(ui.lerCaso, lang)} →
                 </a>
+                {c.evidencias && <span class="ev mono">{pt ? 'evidência real' : 'real evidence'}</span>}
               </div>
               <div class="feat-demo">
                 <Demo lang={lang} tipo={c.demo} />
@@ -141,7 +142,7 @@ const description = pt
     <div class="wrap">
       <div class="section-head reveal">
         <p class="kicker">{tr(ui.outrosTitulo, lang)}</p>
-        <h2>{pt ? 'Mais quatro, cada um com demo' : 'Four more, each with a demo'}</h2>
+        <h2>{pt ? 'Mais quatro casos' : 'Four more cases'}</h2>
       </div>
       <div class="cards">
         {
@@ -156,7 +157,9 @@ const description = pt
                 <span class="mv">{tr(c.numero.valor, lang)}</span>
                 <span class="ml">{tr(c.numero.rotulo, lang)}</span>
               </div>
-              <span class="go mono">{tr(ui.lerCaso, lang)} →</span>
+              <span class="go mono">
+                {tr(ui.lerCaso, lang)} →{c.evidencias && <span class="ev">{pt ? 'evidência real' : 'real evidence'}</span>}
+              </span>
             </a>
           ))
         }
@@ -327,69 +330,60 @@ const description = pt
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .num-grid li {
-    padding: 26px 18px 24px;
+    padding: 26px 24px 24px;
     display: grid;
     gap: 6px;
     align-content: start;
+    min-width: 0;
     border-left: 1px solid var(--line);
   }
-  .num-grid li:first-child {
+  .num-grid li:nth-child(3n + 1) {
     border-left: 0;
     padding-left: 0;
   }
+  .num-grid li:nth-child(n + 4) {
+    border-top: 1px solid var(--line);
+  }
   .nv {
-    font-size: clamp(22px, 2.4vw, 30px);
+    font-size: clamp(24px, 2.6vw, 32px);
     font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 1.1;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
   }
   .nl {
     color: var(--muted);
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.4;
   }
   .num-grid .selo {
     justify-self: start;
     font-size: 10.5px;
     margin-top: 4px;
+    white-space: normal;
   }
-  @media (max-width: 1080px) {
+  @media (max-width: 640px) {
     .num-grid {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .num-grid li:nth-child(4) {
-      border-left: 0;
-      padding-left: 0;
-    }
-    .num-grid li:nth-child(n + 4) {
-      border-top: 1px solid var(--line);
-    }
-  }
-  @media (max-width: 600px) {
-    .num-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-    .num-grid li {
-      padding: 20px 12px;
-    }
-    .nv {
-      font-size: 21px;
-      white-space: normal;
+    .num-grid li,
+    .num-grid li:nth-child(3n + 1) {
+      padding: 20px 0 20px 14px;
+      border-left: 1px solid var(--line);
+      border-top: 0;
     }
     .num-grid li:nth-child(odd) {
       border-left: 0;
       padding-left: 0;
     }
-    .num-grid li:nth-child(4) {
-      border-left: 1px solid var(--line);
-      padding-left: 12px;
-    }
     .num-grid li:nth-child(n + 3) {
       border-top: 1px solid var(--line);
+    }
+    .nv {
+      font-size: 22px;
     }
   }
 
@@ -514,6 +508,17 @@ const description = pt
   .go {
     font-size: 13px;
     color: var(--accent);
+  }
+  .ev {
+    display: inline-block;
+    margin-left: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(124, 245, 176, 0.45);
+    color: var(--accent);
+    vertical-align: middle;
   }
 
   .mini {

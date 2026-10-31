@@ -10,7 +10,7 @@ const linhas =
   lang === 'pt'
     ? [
         { k: 'cmd', t: 'agente-fiscal analisar --quinzena demo' },
-        { k: 'tool', t: 'ler_documentos(lote="demo")', r: '42 documentos · PDF e imagem' },
+        { k: 'tool', t: 'ler_documentos(lote="demo")', r: '6 documentos · PDF e imagem' },
         { k: 'tool', t: 'gemini.multimodal(ler + extrair)', r: 'campos extraídos' },
         { k: 'tool', t: 'montar_analise()', r: 'pronto' },
         { k: 'warn', t: '3 itens para a diretoria olhar' },
@@ -21,7 +21,7 @@ const linhas =
       ]
     : [
         { k: 'cmd', t: 'tax-agent review --fortnight demo' },
-        { k: 'tool', t: 'read_documents(batch="demo")', r: '42 documents · PDF and image' },
+        { k: 'tool', t: 'read_documents(batch="demo")', r: '6 documents · PDF and image' },
         { k: 'tool', t: 'gemini.multimodal(read + extract)', r: 'fields extracted' },
         { k: 'tool', t: 'build_review()', r: 'done' },
         { k: 'warn', t: '3 items for leadership to check' },

@@ -11,7 +11,7 @@
   --line-2: rgba(255, 255, 255, 0.14);
   --text: #e9eef3;
   --muted: #95a1ae;
-  --faint: #66727f;
+  --faint: #86929f; /* ≥4,5:1 sobre todos os fundos escuros do site */
   --accent: #7cf5b0;
   --accent-ink: #062014;
   --accent-soft: rgba(124, 245, 176, 0.12);
@@ -170,7 +170,8 @@ a {
 }
 
 .selo-confirmado,
-.selo-medido {
+.selo-medido,
+.selo-app {
   color: var(--accent);
 }
 .selo-relatado,

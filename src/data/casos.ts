@@ -6,11 +6,12 @@ import type { T } from './i18n';
  * Fontes: CV oficial + briefing ("fatos confirmados") + respostas do Mateus em 31/10/2026.
  */
 
-export type Selo = 'confirmado' | 'medido' | 'relatado' | 'projecao' | 'producao';
+export type Selo = 'confirmado' | 'medido' | 'app' | 'relatado' | 'projecao' | 'producao';
 
 export const selos: Record<Selo, T> = {
   confirmado: { pt: 'Confirmado pela diretoria', en: 'Confirmed by leadership' },
   medido: { pt: 'Medido por link/UTM', en: 'Measured via link/UTM' },
+  app: { pt: 'Medido nos dados da aplicação', en: 'Measured from app data' },
   relatado: { pt: 'Relatado por quem usa', en: 'Reported by users' },
   projecao: { pt: 'Projeção, não resultado', en: 'Projection, not a result' },
   producao: { pt: 'Em produção', en: 'In production' },
@@ -34,9 +35,80 @@ export type Caso = {
   ferramentas: string[];
   demo: 'docs' | 'erp' | 'paciente' | 'adocao' | 'recuperacao' | 'alerta' | 'blackfriday';
   arquitetura: Trilha[];
+  /** Prints reais, sem dados sensíveis. Sem evidência = nota de confidencialidade. */
+  evidencias?: { src: string; w: number; h: number; alt: T; legenda: T; estreita?: boolean }[];
 };
 
 export const casos: Caso[] = [
+  {
+    slug: 'agente-teams-mcp-erp',
+    slugEn: 'teams-agent-mcp-erp',
+    nivel: 'destaque',
+    org: { pt: 'Hy Brazil Energia', en: 'Hy Brazil Energia' },
+    titulo: {
+      pt: 'Agente no Teams que conversa com o ERP legado via MCP',
+      en: 'A Teams agent that talks to the legacy ERP through MCP',
+    },
+    resumo: {
+      pt: 'Consultas e operações do ERP (UAU) direto no chat, por servidores MCP que eu criei. Disponível para a empresa toda e usado por ~30 pessoas por semana.',
+      en: 'ERP (UAU) queries and operations straight from chat, through MCP servers I built. Available company-wide and used by ~30 people a week.',
+    },
+    numero: { valor: { pt: '~30', en: '~30' }, rotulo: { pt: 'pessoas usam por semana', en: 'people use it weekly' }, selo: 'app' },
+    problema: {
+      pt: 'O ERP da empresa é um sistema legado. Para consultar uma informação ou fazer uma operação, a pessoa precisava conhecer as telas do ERP ou pedir a quem conhece.',
+      en: "The company's ERP is a legacy system. To look something up or run an operation, people had to know the ERP screens or ask someone who did.",
+    },
+    construi: [
+      {
+        pt: 'Servidores MCP próprios que expõem consultas e operações do ERP como ferramentas que a IA pode chamar.',
+        en: 'In-house MCP servers that expose ERP queries and operations as tools the AI can call.',
+      },
+      {
+        pt: 'Um agente de IA dentro do Microsoft Teams, onde as pessoas já trabalham, que usa essas ferramentas para responder e executar no chat.',
+        en: 'An AI agent inside Microsoft Teams, where people already work, that uses those tools to answer and act in chat.',
+      },
+      {
+        pt: 'O agente usa GPT (OpenAI) e está hospedado na AWS.',
+        en: 'The agent runs on GPT (OpenAI) and is hosted on AWS.',
+      },
+      {
+        pt: 'Os mesmos servidores MCP também conectam a IA aos dados das usinas solares, com um dashboard de geração.',
+        en: 'The same MCP servers also connect the AI to solar plant data, with a generation dashboard.',
+      },
+    ],
+    resultado: [
+      { pt: 'Disponível para a empresa toda; ~30 pessoas usam por semana (dados da aplicação).', en: 'Available company-wide; ~30 people use it weekly (app data).' },
+      { pt: 'Quem não conhece o ERP consulta e opera em linguagem natural.', en: "People who don't know the ERP can query and operate it in plain language." },
+    ],
+    ferramentas: ['MCP (servidores próprios)', 'GPT (OpenAI)', 'AWS', 'Microsoft Teams', 'ERP UAU'],
+    evidencias: [
+      {
+        src: '/img/evidencias/teams-james.webp',
+        w: 760,
+        h: 680,
+        estreita: true,
+        alt: {
+          pt: 'Print real do agente no Teams respondendo "Quais minhas aprovações pendentes": nenhuma medição ou cotação aguardando aprovação.',
+          en: 'Real screenshot of the Teams agent answering "What are my pending approvals": no measurements or quotes awaiting approval.',
+        },
+        legenda: {
+          pt: 'O agente em produção no Teams, no celular, consultando as aprovações pendentes do ERP (medições e cotações).',
+          en: 'The agent in production on Teams mobile, checking pending ERP approvals (measurements and quotes).',
+        },
+      },
+    ],
+    demo: 'erp',
+    arquitetura: [
+      {
+        nos: [
+          { t: { pt: 'Pessoa no Teams', en: 'Person on Teams' }, sub: { pt: 'pergunta em português', en: 'asks in plain language' }, tipo: 'pessoa' },
+          { t: { pt: 'Agente de IA', en: 'AI agent' }, sub: { pt: 'GPT, hospedado na AWS', en: 'GPT, hosted on AWS' }, tipo: 'ia' },
+          { t: { pt: 'Servidores MCP', en: 'MCP servers' }, sub: { pt: 'feitos por mim', en: 'built by me' }, tipo: 'acao' },
+          { t: { pt: 'ERP legado (UAU)', en: 'Legacy ERP (UAU)' }, sub: { pt: 'consultas e operações', en: 'queries and operations' }, tipo: 'fonte' },
+        ],
+      },
+    ],
+  },
   {
     slug: 'agente-documentos-fiscais',
     slugEn: 'tax-document-agent',
@@ -78,55 +150,6 @@ export const casos: Caso[] = [
           { t: { pt: 'Agente multimodal', en: 'Multimodal agent' }, sub: { pt: 'Gemini', en: 'Gemini' }, tipo: 'ia' },
           { t: { pt: 'Análise pronta', en: 'Ready review' }, sub: { pt: 'feita pelo agente', en: 'done by the agent' }, tipo: 'acao' },
           { t: { pt: 'Diretoria', en: 'Leadership' }, sub: { pt: 'uso semanal', en: 'weekly use' }, tipo: 'pessoa' },
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'agente-teams-mcp-erp',
-    slugEn: 'teams-agent-mcp-erp',
-    nivel: 'destaque',
-    org: { pt: 'Hy Brazil Energia', en: 'Hy Brazil Energia' },
-    titulo: {
-      pt: 'Agente no Teams que conversa com o ERP legado via MCP',
-      en: 'A Teams agent that talks to the legacy ERP through MCP',
-    },
-    resumo: {
-      pt: 'Consultas e operações do ERP (UAU) direto no chat, para a empresa toda, por servidores MCP que eu criei. ~30 pessoas usam por semana.',
-      en: 'ERP (UAU) queries and operations straight from chat, for the whole company, through MCP servers I built. ~30 people use it weekly.',
-    },
-    numero: { valor: { pt: '~30', en: '~30' }, rotulo: { pt: 'pessoas usam por semana', en: 'people use it weekly' }, selo: 'producao' },
-    problema: {
-      pt: 'O ERP da empresa é um sistema legado. Para consultar uma informação ou fazer uma operação, a pessoa precisava conhecer as telas do ERP ou pedir a quem conhece.',
-      en: "The company's ERP is a legacy system. To look something up or run an operation, people had to know the ERP screens or ask someone who did.",
-    },
-    construi: [
-      {
-        pt: 'Servidores MCP próprios que expõem consultas e operações do ERP como ferramentas que a IA pode chamar.',
-        en: 'In-house MCP servers that expose ERP queries and operations as tools the AI can call.',
-      },
-      {
-        pt: 'Um agente de IA dentro do Microsoft Teams, onde as pessoas já trabalham, que usa essas ferramentas para responder e executar no chat.',
-        en: 'An AI agent inside Microsoft Teams, where people already work, that uses those tools to answer and act in chat.',
-      },
-      {
-        pt: 'Os mesmos servidores MCP também conectam a IA aos dados em tempo real das usinas solares, com um dashboard de geração.',
-        en: 'The same MCP servers also connect the AI to real-time solar plant data, with a generation dashboard.',
-      },
-    ],
-    resultado: [
-      { pt: 'Usado pela empresa toda; ~30 pessoas por semana.', en: 'Used company-wide; ~30 people per week.' },
-      { pt: 'Quem não conhece o ERP consulta e opera em linguagem natural.', en: "People who don't know the ERP can query and operate it in plain language." },
-    ],
-    ferramentas: ['MCP (servidores próprios)', 'Microsoft Teams', 'ERP UAU'],
-    demo: 'erp',
-    arquitetura: [
-      {
-        nos: [
-          { t: { pt: 'Pessoa no Teams', en: 'Person on Teams' }, sub: { pt: 'pergunta em português', en: 'asks in plain language' }, tipo: 'pessoa' },
-          { t: { pt: 'Agente de IA', en: 'AI agent' }, sub: { pt: 'escolhe a ferramenta', en: 'picks the tool' }, tipo: 'ia' },
-          { t: { pt: 'Servidores MCP', en: 'MCP servers' }, sub: { pt: 'feitos por mim', en: 'built by me' }, tipo: 'acao' },
-          { t: { pt: 'ERP legado (UAU)', en: 'Legacy ERP (UAU)' }, sub: { pt: 'consultas e operações', en: 'queries and operations' }, tipo: 'fonte' },
         ],
       },
     ],
@@ -294,8 +317,8 @@ export const casos: Caso[] = [
     },
     construi: [
       {
-        pt: 'Um alerta proativo que acompanha os vencimentos das guias de todos os CNPJs e avisa antes que vençam.',
-        en: 'A proactive alert that tracks the due dates of every slip across all company IDs and warns before they are due.',
+        pt: 'Um serviço em Python que acompanha os vencimentos das guias de todos os CNPJs e avisa os times fiscal e financeiro pelo Teams e por e-mail antes que vençam.',
+        en: 'A Python service that tracks the due dates of every slip across all company IDs and alerts the tax and finance teams on Teams and by email before they are due.',
       },
       {
         pt: 'Saiu em 5 dias, da reunião de requisitos à produção.',
@@ -305,7 +328,7 @@ export const casos: Caso[] = [
     resultado: [
       { pt: 'Em produção, usado pelos times fiscal e financeiro para evitar multas e juros.', en: 'In production, used by the tax and finance teams to avoid fines and interest.' },
     ],
-    ferramentas: [],
+    ferramentas: ['Python', 'Microsoft Teams', 'E-mail'],
     demo: 'alerta',
     arquitetura: [
       {
@@ -313,7 +336,7 @@ export const casos: Caso[] = [
           { t: { pt: 'Guias de tributos', en: 'Tax slips' }, sub: { pt: 'federais, estaduais, municipais', en: 'federal, state, municipal' }, tipo: 'fonte' },
           { t: { pt: 'Centenas de CNPJs', en: 'Hundreds of CNPJs' }, sub: { pt: 'acompanhamento contínuo', en: 'continuous tracking' }, tipo: 'acao' },
           { t: { pt: 'Alerta proativo', en: 'Proactive alert' }, sub: { pt: 'antes de vencer', en: 'before the due date' }, tipo: 'ia' },
-          { t: { pt: 'Fiscal e financeiro', en: 'Tax and finance' }, sub: { pt: 'pagam em dia', en: 'pay on time' }, tipo: 'pessoa' },
+          { t: { pt: 'Teams e e-mail', en: 'Teams and email' }, sub: { pt: '→ fiscal e financeiro', en: '→ tax and finance' }, tipo: 'pessoa' },
         ],
       },
     ],
@@ -364,6 +387,21 @@ export const casos: Caso[] = [
       { pt: 'Projeção de faturamento mínimo de R$500 mil. A campanha ainda está em andamento, e o resultado real entra aqui quando sair.', en: 'Projected minimum revenue of R$500k. The campaign is still running, and the real result will be posted here once available.' },
     ],
     ferramentas: ['Claude', 'n8n (via MCP)', 'Meta API de Conversões', 'Kommo', 'WhatsApp', 'SendFlow', 'Google Sheets'],
+    evidencias: [
+      {
+        src: '/img/evidencias/n8n-recuperacao-bf.webp',
+        w: 961,
+        h: 754,
+        alt: {
+          pt: 'Print real do fluxo de recuperação da Black Friday no n8n: entradas por webhook, fila, disparador a cada 5 minutos e envio da compra paga para a Meta.',
+          en: 'Real screenshot of the Black Friday recovery flow in n8n: webhook inputs, queue, a 5-minute dispatcher and paid purchases sent to Meta.',
+        },
+        legenda: {
+          pt: 'O fluxo real de recuperação no n8n. O texto das notas foi borrado; o desenho e os nomes dos passos são os originais.',
+          en: 'The real recovery flow in n8n. Note text is blurred; the layout and step names are the originals.',
+        },
+      },
+    ],
     demo: 'blackfriday',
     arquitetura: [
       {
@@ -399,7 +437,7 @@ export const outros = casos.filter((c) => c.nivel === 'outro');
 
 export const numerosHome: { valor: T; rotulo: T; selo: Selo }[] = [
   { valor: { pt: '15h → 1h', en: '15h → 1h' }, rotulo: { pt: 'análise fiscal quinzenal', en: 'fortnightly tax review' }, selo: 'confirmado' },
-  { valor: { pt: '~30/semana', en: '~30/week' }, rotulo: { pt: 'pessoas usando o agente do ERP', en: 'people using the ERP agent' }, selo: 'producao' },
+  { valor: { pt: '~30/semana', en: '~30/week' }, rotulo: { pt: 'pessoas usando o agente do ERP', en: 'people using the ERP agent' }, selo: 'app' },
   { valor: { pt: '~R$20 mil', en: '~R$20k' }, rotulo: { pt: 'recuperados via WhatsApp', en: 'recovered over WhatsApp' }, selo: 'medido' },
   { valor: { pt: '~R$15 mil/mês', en: '~R$15k/mo' }, rotulo: { pt: 'de verba de anúncio realocada', en: 'of ad spend reallocated' }, selo: 'producao' },
   { valor: { pt: '~60', en: '~60' }, rotulo: { pt: 'pessoas treinadas em 11 setores', en: 'people trained in 11 departments' }, selo: 'producao' },
@@ -429,8 +467,8 @@ export const maisEmProducao: { titulo: T; texto: T; org: T }[] = [
   },
   {
     org: { pt: 'Hy', en: 'Hy' },
-    titulo: { pt: 'Usinas solares em tempo real', en: 'Solar plants in real time' },
-    texto: { pt: 'Servidor MCP e dashboard com os dados de geração das usinas.', en: 'MCP server and dashboard with live plant generation data.' },
+    titulo: { pt: 'Dados das usinas solares', en: 'Solar plant data' },
+    texto: { pt: 'Servidor MCP e dashboard com os dados de geração das usinas.', en: 'MCP server and dashboard with plant generation data.' },
   },
   {
     org: { pt: 'Trackify', en: 'Trackify' },
